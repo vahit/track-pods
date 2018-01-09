@@ -35,7 +35,7 @@ while [[ ${WAIT_TIME} != 0 ]]; do
             echo "${COMMAND_OUTPUT}" >> ${LOG_FILE}
         fi
     fi
-    if [[ ! -z ${COMMAND_OUTPUT1} ]]; then
+    if [[ $(echo ${COMMAND_OUTPUT1} | grep -vi namespace) != "" ]]; then
         SUBJECT="[WARRNING] POD FAILER."
         echo -e "One or more of our pods has a problem:\n${COMMAND_OUTPUT1}" >> ${LOG_FILE}
         COMMAND_OUTPUT2=$(EMAIL="${SENDER_NAME} <${SENDER}>" mutt -s "${SUBJECT}" -- ${RECIPIENT} < ${LOG_FILE})
