@@ -13,7 +13,7 @@ function running() {
 running
 
 WAIT_TIME="1"
-source ${HOME}/.config/*.conf
+source ${HOME}/.config/track-pods.conf
 
 while [[ ${WAIT_TIME} != 0 ]]; do
     if [[ ${WAIT_TIME} -gt 120 ]]; then
