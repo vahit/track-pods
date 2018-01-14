@@ -4,7 +4,7 @@ function running() {
     COMMAND_NAME=$(basename ${0})
     COMMAND_OUTPUT=$(ps ax | pgrep ${COMMAND_NAME} | wc --lines)
     RETURN_CODE=${?}
-    if [[ ${RETURN_CODE} -eq 0 && ${COMMAND_OUTPUT} -lt 1 ]]; then
+    if [[ ${RETURN_CODE} -eq 0 && ${COMMAND_OUTPUT} -gt 1 ]]; then
         echo "The script is still running."
         exit 1
     fi
@@ -20,9 +20,9 @@ while [[ ${WAIT_TIME} != 0 ]]; do
         WAIT_TIME=1
     fi
     sleep ${WAIT_TIME}
-    COMMAND_OUTPUT1=$(kubectl --all-namespaces --output wide get pods | grep -vi "running")
+    COMMAND_OUTPUT1=$(kubectl --all-namespaces --output wide get pods | grep -vi "running\|namespace")
     RETURN_CODE=${?}
-    if [[ ${RETURN_CODE} != 0 ]]; then
+    if [[ ${RETURN_CODE} != 1 ]]; then
         WAIT_TIME=$(( WAIT_TIME + 30 ))
         SUBJECT="Monitoring FAILED!!"
         echo -e "Kubectl command could not be run completely.\n ${COMMAND_OUTPUT1}" > ${LOG_FILE}
@@ -35,7 +35,7 @@ while [[ ${WAIT_TIME} != 0 ]]; do
             echo "${COMMAND_OUTPUT2}" >> ${LOG_FILE}
         fi
     fi
-    if [[ $(echo ${COMMAND_OUTPUT1} | grep -vi namespace) != "" ]]; then
+    if [[ $(echo ${COMMAND_OUTPUT1}) != "" ]]; then
         SUBJECT="[WARRNING] POD FAILER."
         echo -e "One or more of our pods has a problem:\n${COMMAND_OUTPUT1}" >> ${LOG_FILE}
         COMMAND_OUTPUT2=$(EMAIL="${SENDER_NAME} <${SENDER}>" mutt -s "${SUBJECT}" -- ${RECIPIENT} < ${LOG_FILE})
