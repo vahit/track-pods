@@ -2,7 +2,7 @@
 
 function running() {
     COMMAND_NAME=$(basename ${0})
-    COMMAND_OUTPUT=$(ps ax | grep ${COMMAND_NAME} | grep -v grep | wc --lines)
+    COMMAND_OUTPUT=$(ps ax | pgrep ${COMMAND_NAME} | wc --lines)
     RETURN_CODE=${?}
     if [[ ${RETURN_CODE} -eq 0 && ${COMMAND_OUTPUT} -lt 1 ]]; then
         echo "The script is still running."
@@ -13,7 +13,7 @@ function running() {
 running
 
 WAIT_TIME="1"
-source $(dirname ${0})/*.conf
+source ${HOME}/.config/*.conf
 
 while [[ ${WAIT_TIME} != 0 ]]; do
     if [[ ${WAIT_TIME} -gt 120 ]]; then
@@ -25,29 +25,30 @@ while [[ ${WAIT_TIME} != 0 ]]; do
     if [[ ${RETURN_CODE} != 0 ]]; then
         WAIT_TIME=$(( WAIT_TIME + 30 ))
         SUBJECT="Monitoring FAILED!!"
-        echo -e "Kubectl command could not be run completely.\n ${COMMAND_OUTPUT}" > ${LOG_FILE}
+        echo -e "Kubectl command could not be run completely.\n ${COMMAND_OUTPUT1}" > ${LOG_FILE}
         COMMAND_OUTPUT2=$(EMAIL="${SENDER_NAME} <${SENDER}>" mutt -s "${SUBJECT}" -- ${RECIPIENT} < ${LOG_FILE})
         RETURN_CODE=${?}
         if [[ ${RETURN_CODE} -eq 0 ]]; then
             rm ${LOG_FILE}
             WAIT_TIME=0
         else
-            echo "${COMMAND_OUTPUT}" >> ${LOG_FILE}
+            echo "${COMMAND_OUTPUT2}" >> ${LOG_FILE}
         fi
     fi
     if [[ $(echo ${COMMAND_OUTPUT1} | grep -vi namespace) != "" ]]; then
         SUBJECT="[WARRNING] POD FAILER."
         echo -e "One or more of our pods has a problem:\n${COMMAND_OUTPUT1}" >> ${LOG_FILE}
         COMMAND_OUTPUT2=$(EMAIL="${SENDER_NAME} <${SENDER}>" mutt -s "${SUBJECT}" -- ${RECIPIENT} < ${LOG_FILE})
-        RETURN_CONE=${?}
+        RETURN_CODE=${?}
         if [[ ${RETURN_CODE} -eq 0 ]]; then
             rm ${LOG_FILE}
             WAIT_TIME=0
         else
-            echo "${COMMAND_OUTPUT}" >> ${LOG_FILE}
+            echo "${COMMAND_OUTPUT2}" >> ${LOG_FILE}
         fi
     else
         WAIT_TIME=0
     fi
 done
 
+exit 0
