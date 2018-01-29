@@ -20,7 +20,7 @@ while [[ ${WAIT_TIME} != 0 ]]; do
         WAIT_TIME=1
     fi
     sleep ${WAIT_TIME}
-    COMMAND_OUTPUT1=$(kubectl --all-namespaces --output wide get pods | grep -vi "running\|namespace" 2>&1)
+    COMMAND_OUTPUT1=$(kubectl --all-namespaces --output wide get pods | grep -vi "running\|namespace\|cron" 2>&1)
     RETURN_CODE=${?}
     if [[ ${RETURN_CODE} != 0 && ${COMMAND_OUTPUT1} != "" ]]; then
         WAIT_TIME=$(( WAIT_TIME + 30 ))
