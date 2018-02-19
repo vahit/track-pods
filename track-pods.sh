@@ -15,12 +15,17 @@ running
 WAIT_TIME="1"
 source ${HOME}/.config/track-pods.conf
 
+if [[ ! -z $EXCEPT ]]; then
+    TMP_EXCEPT=$EXCEPT
+    EXCEPT=$(echo $TMP_EXCEPT | sed 's/,/\\|/g')
+fi
+
 while [[ ${WAIT_TIME} != 0 ]]; do
     if [[ ${WAIT_TIME} -gt 120 ]]; then
         WAIT_TIME=1
     fi
     sleep ${WAIT_TIME}
-    COMMAND_OUTPUT1=$(kubectl --all-namespaces --output wide get pods | grep -vi "running\|namespace\|cron" 2>&1)
+    COMMAND_OUTPUT1=$(kubectl --all-namespaces --output wide get pods | grep -vi $EXCEPT 2>&1)
     RETURN_CODE=${?}
     if [[ ${RETURN_CODE} != 0 && ${COMMAND_OUTPUT1} != "" ]]; then
         WAIT_TIME=$(( WAIT_TIME + 30 ))
