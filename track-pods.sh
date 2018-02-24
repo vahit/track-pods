@@ -40,7 +40,8 @@ while [[ ${WAIT_TIME} != 0 ]]; do
         fi
     fi
     if [[ $(echo ${COMMAND_OUTPUT1}) != "" && ${RETURN_CODE} == 0 ]]; then
-        SUBJECT="[WARRNING] POD FAILER."
+        COUNT=$(echo ${COMMAND_OUTPUT} | wc --lines)
+        SUBJECT="[WARRNING] POD FAILER.[${COUNT}]"
         echo -e "One or more of our pods has a problem:\n${COMMAND_OUTPUT1}" >> "${LOG_FILE}"
         COMMAND_OUTPUT2=$(EMAIL="${SENDER_NAME} <${SENDER}>" mutt -s "${SUBJECT}" -- ${RECIPIENT} < "${LOG_FILE}")
         RETURN_CODE=${?}
